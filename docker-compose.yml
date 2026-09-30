@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-mongodb:
+ mongodb:
   image: mongo:7.0
   container_name: full-stack_mongodb
   restart: unless-stopped
@@ -14,7 +14,7 @@ mongodb:
   networks:
     - fullstack-chatapp
 
-backend:
+ backend:
   build:
     context: ./backend
   container_name: full-stack_backend

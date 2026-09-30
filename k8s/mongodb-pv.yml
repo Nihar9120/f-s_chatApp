@@ -4,9 +4,11 @@ metadata:
   name: mongodb-pv
   namespace: chat-app
 spec:
-  accessModes:
-    - ReadWriteOnce
   capacity:
     storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
   hostPath:
-    path: /data
+    path: /mnt/data

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: chatapp-backend
-        image: nihar9120/backend-chatapp
+        image: nihar9120/f-s_chatapp-backend:latest
         ports:
         - containerPort: 5001
         env:

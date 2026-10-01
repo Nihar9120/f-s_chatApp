@@ -1,55 +1,83 @@
 services:
+
   mongodb:
     image: mongo:7.0
     container_name: mongodb
     restart: unless-stopped
+
     volumes:
       - mongo-data:/data/db
+
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-    # no published ports: only reachable inside the compose network
+
     networks:
       - fullstack-chatapp
+
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+
   backend:
     build:
       context: ./backend
+
     container_name: full-stack_backend
     restart: unless-stopped
+
     environment:
-      - NODE_ENV=production
-      - COOKIE_SECURE=false
-      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/${MONGO_DB}?authSource=admin
-      - JWT_SECRET=${JWT_SECRET}
-      - PORT=5001
+      NODE_ENV: production
+      PORT: 5001
+      COOKIE_SECURE: "false"
+
+      MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/${MONGO_DB}?authSource=admin
+
+      JWT_SECRET: ${JWT_SECRET}
+
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+
     depends_on:
       mongodb:
         condition: service_healthy
+
     networks:
       - fullstack-chatapp
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
   frontend:
     build:
       context: ./frontend
+
     container_name: full-stack_frontend
     restart: unless-stopped
+
     ports:
       - "80:80"
+
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+
     networks:
       - fullstack-chatapp
+
 
 networks:
   fullstack-chatapp:
     driver: bridge
 
+
 volumes:
   mongo-data:
-
